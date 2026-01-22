@@ -11,9 +11,6 @@
   <!-- MindAR -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
-  <!-- Optional -->
-  <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
-
   <style>
     body {
       margin: 0;
@@ -48,21 +45,18 @@
 
   <!-- Assets -->
   <a-assets>
-    <img id="imgAR" src="./wbk.jpeg">
+    <img id="imgAR" src="./wbk.JPEG">
   </a-assets>
 
   <!-- Kamera -->
   <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-  <!-- Target Marker -->
+  <!-- Marker -->
   <a-entity id="marker" mindar-image-target="targetIndex: 0">
     <a-image
       id="image"
       src="#imgAR"
       position="0 0 0.1"
-      width="1"
-      height="0.6"
-      rotation="0 0 0"
       visible="false">
     </a-image>
   </a-entity>
@@ -74,37 +68,38 @@
   const ui = document.getElementById("ui-overlay");
   const marker = document.getElementById("marker");
   const image = document.getElementById("image");
+  const imgAsset = document.getElementById("imgAR");
 
-  let initialized = false;
+  // AUTO RATIO — sesuaikan ukuran gambar asli
+  imgAsset.addEventListener("load", () => {
+    const w = imgAsset.naturalWidth;
+    const h = imgAsset.naturalHeight;
+
+    const baseHeight = 1;          // ubah ini kalau mau lebih kecil / besar
+    const aspect = w / h;
+
+    image.setAttribute("height", baseHeight);
+    image.setAttribute("width", baseHeight * aspect);
+  });
 
   sceneEl.addEventListener("loaded", () => {
     const mindarSystem = sceneEl.systems["mindar-image-system"];
 
-    // Kamera siap
     mindarSystem.addEventListener("arReady", () => {
       ui.innerText = "Kamera aktif — Scan gambar target";
     });
 
-    // Error kamera / https
     mindarSystem.addEventListener("arError", () => {
       ui.innerText = "ERROR: Kamera diblokir (wajib HTTPS)";
       ui.style.background = "red";
     });
   });
 
-  // Marker ditemukan
   marker.addEventListener("targetFound", () => {
     ui.innerText = "Target ditemukan";
-
-    if (!initialized) {
-      image.setAttribute("visible", true);
-      initialized = true;
-    } else {
-      image.setAttribute("visible", true);
-    }
+    image.setAttribute("visible", true);
   });
 
-  // Marker hilang (gambar tidak di-reset)
   marker.addEventListener("targetLost", () => {
     ui.innerText = "Target hilang";
     image.setAttribute("visible", false);
@@ -113,4 +108,3 @@
 
 </body>
 </html>
-
