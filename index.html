@@ -46,8 +46,9 @@
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: false">
 
+  <!-- Assets -->
   <a-assets>
-    <a-asset-item id="avatarModel" src="./wbk.JPEG"></a-asset-item>
+    <img id="imgAR" src="./wbk.JPEG">
   </a-assets>
 
   <!-- Kamera -->
@@ -55,14 +56,15 @@
 
   <!-- Target Marker -->
   <a-entity id="marker" mindar-image-target="targetIndex: 0">
-    <a-gltf-model
-      id="model"
-      src="#avatarModel"
+    <a-image
+      id="image"
+      src="#imgAR"
       position="0 0 0.1"
+      width="1"
+      height="0.6"
       rotation="0 0 0"
-      scale="0.005 0.005 0.005"
       visible="false">
-    </a-gltf-model>
+    </a-image>
   </a-entity>
 
 </a-scene>
@@ -71,9 +73,9 @@
   const sceneEl = document.querySelector("a-scene");
   const ui = document.getElementById("ui-overlay");
   const marker = document.getElementById("marker");
-  const model = document.getElementById("model");
+  const image = document.getElementById("image");
 
-  let modelInitialized = false;
+  let initialized = false;
 
   sceneEl.addEventListener("loaded", () => {
     const mindarSystem = sceneEl.systems["mindar-image-system"];
@@ -94,24 +96,20 @@
   marker.addEventListener("targetFound", () => {
     ui.innerText = "Target ditemukan";
 
-    if (!modelInitialized) {
-      model.setAttribute("visible", true);
-      modelInitialized = true;
+    if (!initialized) {
+      image.setAttribute("visible", true);
+      initialized = true;
     } else {
-      model.setAttribute("visible", true);
+      image.setAttribute("visible", true);
     }
   });
 
-  // Marker hilang (model tidak di-reset)
+  // Marker hilang (gambar tidak di-reset)
   marker.addEventListener("targetLost", () => {
     ui.innerText = "Target hilang";
-    model.setAttribute("visible", false);
+    image.setAttribute("visible", false);
   });
 </script>
 
 </body>
 </html>
-
-
-
-
