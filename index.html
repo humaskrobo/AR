@@ -1,82 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
+<html>
+  <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>WebAR Image Tracking</title>
-    
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
-
+    
     <style>
-        body { margin: 0; overflow: hidden; }
-        
-        /* Layar loading sederhana */
-        #example-scanning-overlay {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            z-index: 10;
-        }
-        #example-scanning-overlay.hidden {
-            display: none;
-        }
+      body { margin: 0; overflow: hidden; background-color: black; }
+      #ui-overlay {
+        position: fixed; top: 10px; left: 10px; z-index: 999;
+        color: white; font-family: sans-serif; background: rgba(0,0,0,0.5); padding: 10px;
+      }
     </style>
-</head>
-<body>
-
-    <div id="example-scanning-overlay">
-        <p>Mencari Kamera & Menyiapkan AR...</p>
-    </div>
+  </head>
+  <body>
+    <div id="ui-overlay">Status: Menunggu Izin Kamera...</div>
 
     <a-scene 
-        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: yes;" 
-        color-space="sRGB" 
-        renderer="colorManagement: true, physicallyCorrectLights" 
-        vr-mode-ui="enabled: false" 
-        device-orientation-permission-ui="enabled: false">
-        
-        <a-assets>
-            <a-asset-item id="avatarModel" src="./soulless.glb"></a-asset-item>
-        </a-assets>
+      mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: yes; uiScanning: yes;" 
+      color-space="sRGB" 
+      renderer="colorManagement: true, physicallyCorrectLights" 
+      vr-mode-ui="enabled: false" 
+      device-orientation-permission-ui="enabled: false">
+      
+      <a-assets>
+        <a-asset-item id="avatarModel" src="./soulless.glb"></a-asset-item>
+      </a-assets>
 
-        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <a-entity mindar-image-target="targetIndex: 0">
-            <a-gltf-model 
-                src="#avatarModel" 
-                rotation="0 0 0" 
-                position="0 0 0.1" 
-                scale="0.05 0.05 0.05"
-                animation="property: rotation; to: 0 360 0; dur: 5000; easing: linear; loop: true">
-            </a-gltf-model>
-        </a-entity>
-
+      <a-entity mindar-image-target="targetIndex: 0">
+        <a-gltf-model 
+          src="#avatarModel" 
+          rotation="0 0 0" 
+          position="0 0 0.1" 
+          scale="0.05 0.05 0.05">
+        </a-gltf-model>
+      </a-entity>
     </a-scene>
 
     <script>
-        // Menghilangkan overlay saat sistem siap
-        document.addEventListener("DOMContentLoaded", () => {
-            const sceneEl = document.querySelector('a-scene');
-            const overlay = document.querySelector('#example-scanning-overlay');
-            
-            sceneEl.addEventListener("arReady", (event) => {
-                console.log("MindAR is ready");
-                overlay.classList.add("hidden");
-            });
+      const sceneEl = document.querySelector('a-scene');
+      const ui = document.querySelector('#ui-overlay');
 
-            sceneEl.addEventListener("arError", (event) => {
-                console.log("MindAR failed to start");
-                alert("Gagal mengakses kamera. Pastikan menggunakan HTTPS.");
-            });
-        });
+      // Deteksi jika AR siap
+      sceneEl.addEventListener("arReady", (event) => {
+        ui.innerText = "Kamera Aktif - Scan Gambar Anda";
+      });
+
+      // Deteksi jika gagal (biasanya karena HTTP biasa, bukan HTTPS)
+      sceneEl.addEventListener("arError", (event) => {
+        ui.innerText = "ERROR: Kamera diblokir! Gunakan HTTPS atau Live Server.";
+        ui.style.background = "red";
+      });
     </script>
-</body>
+  </body>
 </html>
